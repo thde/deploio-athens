@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Athens</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --code-bg: #f4f4f4;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --code-bg: #2a2a2a;
+        }
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+
+      pre {
+        background-color: var(--code-bg);
+        border-radius: 5px;
+        width: fit-content;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+        padding: 10px;
+      }
+
+      code {
+        background-color: var(--code-bg);
+        padding: 5px;
+        border-radius: 5px;
+      }
+
+      footer {
+        margin-top: 40px;
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to Athens</h1>
+
+    <h2>Configuring your client</h2>
+    <p>
+      Modules not yet cached are redirected to
+      <a href="https://proxy.golang.org/"><code>proxy.golang.org</code></a
+      >. Checksums are still verified against
+      <a href="https://sum.golang.org/"><code>sum.golang.org</code></a
+      >:
+    </p>
+    <pre>go env -w GOPROXY={{ .Host }},https://proxy.golang.org,direct</pre>
+    {{ if .NoSumPatterns }}
+    <h3>Excluding checksum database</h3>
+    <p>
+      Use the following GONOSUMDB environment variable to exclude checksum
+      database:
+    </p>
+    <pre>GONOSUMDB={{ .NoSumPatterns }}</pre>
+    {{ end }}
+
+    <h2>How to use the Athens API</h2>
+    <p>
+      Use the <a href="/catalog">catalog</a> endpoint to get a list of all
+      modules in the proxy.
+    </p>
+
+    <h3>List of versions</h3>
+    <p>
+      This endpoint returns a list of versions that Athens knows about for
+      <code>github.com/google/uuid</code>:
+    </p>
+    <pre>GET {{ .Host }}/github.com/google/uuid/@v/list</pre>
+
+    <h3>Version info</h3>
+    <p>
+      This endpoint returns information about a specific version of a module:
+    </p>
+    <pre>GET {{ .Host }}/github.com/google/uuid/@v/v1.6.0.info</pre>
+    <p>This returns JSON with information about v1.6.0. It looks like this:</p>
+    <pre>
+{
+	"Version": "v1.6.0",
+	"Time": "2024-01-23T18:54:04Z"
+}</pre>
+
+    <h3>go.mod file</h3>
+    <p>
+      This endpoint returns the go.mod file for a specific version of a module:
+    </p>
+    <pre>GET {{ .Host }}/github.com/google/uuid/@v/v1.6.0.mod</pre>
+    <p>
+      This returns the go.mod file for version v1.6.0. As
+      <code>github.com/google/uuid</code> has no dependencies, the response body
+      looks like this:
+    </p>
+    <pre>module github.com/google/uuid</pre>
+
+    <h3>Module sources</h3>
+    <pre>GET {{ .Host }}/github.com/google/uuid/@v/v1.6.0.zip</pre>
+    <p>
+      This endpoint returns a zip file with the source code of the module in
+      version v1.6.0.
+    </p>
+
+    <h3>Latest</h3>
+    <pre>GET {{ .Host }}/github.com/google/uuid/@latest</pre>
+    <p>
+      This endpoint returns the latest version of the module. If the module has
+      no tagged versions, it returns a pseudo-version for the latest commit.
+    </p>
+
+    <footer>
+      <p>
+        Deployed from
+        <a href="https://github.com/thde/deploio-athens">thde/deploio-athens</a
+        >.
+      </p>
+    </footer>
+  </body>
+</html>

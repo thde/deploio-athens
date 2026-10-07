@@ -22,6 +22,9 @@ ENV GOGET_RESERVED_MIB=128 \
     GOGET_MAX_WORKERS=10
 
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+# No --chmod: some builders apply it to the created parent directory too,
+# leaving it untraversable.
+COPY home.html /var/lib/athens/home.html
 
 # The upstream image creates this user but runs as root.
 USER 1000

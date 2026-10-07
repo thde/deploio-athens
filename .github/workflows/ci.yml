@@ -28,5 +28,20 @@ jobs:
         with:
           context: .
           push: false
+          load: true
+          tags: athens:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: start
+        run: |
+          docker run -d --name athens -p 3000:3000 \
+            -e ATHENS_STORAGE_TYPE=memory \
+            athens:ci
+      - name: smoke test
+        run: |
+          curl -fsS --retry 10 --retry-delay 1 --retry-all-errors -o /dev/null http://localhost:3000/healthz
+          curl -fsS http://localhost:3000/ | tee home.out | grep -q '</html>'
+          grep -q 'github.com/google/uuid' home.out
+      - name: logs
+        if: always()
+        run: docker logs athens
